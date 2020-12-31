@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { withUrqlClient } from 'next-urql'
 import { createUrqlClient } from '../utils/createUrqlClient'
-import { useDeletePostMutation, usePostsQuery } from '../generated/graphql'
+import {
+  useDeletePostMutation,
+  useMeQuery,
+  usePostsQuery,
+} from '../generated/graphql'
 import { Layout } from '../components/Layout'
 import NextLink from 'next/link'
 import {
@@ -14,10 +18,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { DeleteIcon } from '@chakra-ui/icons'
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { UpdootSection } from '../components/UpdootSection'
 
 const Index = () => {
+  const [{ data: meData }] = useMeQuery()
+
   const [variables, setVariables] = useState({
     limit: 15,
     cursor: null as null | string,
@@ -58,14 +64,28 @@ const Index = () => {
                     {post.textSnippet}
                   </Text>
                 </Box>
-                <IconButton
-                  ml='auto'
-                  icon={<DeleteIcon />}
-                  aria-label='Delete Post'
-                  onClick={() => {
-                    deletePost({ id: post.id })
-                  }}
-                />
+                {post.creator.id === meData?.me?.id && (
+                  <Box ml='auto'>
+                    <NextLink
+                      href='/post/edit/[id]'
+                      as={`/post/edit/${post.id}`}
+                    >
+                      <IconButton
+                        as={Link}
+                        mr={2}
+                        icon={<EditIcon />}
+                        aria-label='Edit Post'
+                      />
+                    </NextLink>
+                    <IconButton
+                      icon={<DeleteIcon />}
+                      aria-label='Delete Post'
+                      onClick={() => {
+                        deletePost({ id: post.id })
+                      }}
+                    />
+                  </Box>
+                )}
               </Flex>
             )
           )}
