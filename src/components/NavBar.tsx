@@ -2,10 +2,12 @@ import { Box, Button, Flex, Heading, Link, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
 import { useLogoutMutation, useMeQuery } from '../generated/graphql'
+import { useRouter } from 'next/router'
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
+  const router = useRouter()
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation()
   const [{ data, fetching }] = useMeQuery()
   let body = null
@@ -37,8 +39,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           <Text color='white'>{data.me.username}</Text>
         </Box>
         <Button
-          onClick={() => {
-            logout()
+          onClick={async () => {
+            await logout()
+            router.reload()
           }}
           isLoading={logoutFetching}
           variant='link'

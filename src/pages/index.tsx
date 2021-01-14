@@ -7,22 +7,32 @@ import { Layout } from '../components/Layout'
 import { UpdootSection } from '../components/UpdootSection'
 import { usePostsQuery } from '../generated/graphql'
 import { createUrqlClient } from '../utils/createUrqlClient'
+import Head from 'next/head'
 
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 15,
     cursor: null as null | string,
   })
-  const [{ data, fetching }] = usePostsQuery({
+  const [{ data, error, fetching }] = usePostsQuery({
     variables,
   })
 
   if (!fetching && !data) {
-    return <div>Query failed</div>
+    return (
+      <div>
+        <div>Query failed:</div>
+        <div>{error?.message}</div>
+      </div>
+    )
   }
 
   return (
     <Layout>
+      <Head>
+        <title>LiReddit</title>
+        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
+      </Head>
       {!data && fetching ? (
         <div>loading...</div>
       ) : (
